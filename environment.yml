@@ -1,0 +1,20 @@
+name: gait_mamba
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - seaborn
+  - pip
+  - pip:
+      - tsfresh
+      - tqdm
+      - torch
+      - torchvision
+      - git+https://github.com/state-spaces/mamba.git
+      - jupyterlab
+
