@@ -1,0 +1,27 @@
+# ---- SYSTEM / IDE ----
+*.DS_Store
+Thumbs.db
+.vscode/
+.ipynb_checkpoints/
+__pycache__/
+
+# ---- DATA ----
+data/raw/
+data/processed/*.parquet
+data/processed/*.csv
+data/processed/*.xlsx
+reports/figs/
+reports/*.png
+*.zip
+*.rar
+*.gz
+*.tar
+
+# ---- NOTEBOOK OUTPUTS ----
+*.ipynb
+*.log
+
+# ---- ENVIRONMENTS ----
+.env
+.venv/
+*.egg-info/
