@@ -62,9 +62,6 @@ PALETTE_LABEL = {0: COL_HC, 1: COL_PD}   # 0=Control, 1=PD
 MARKER_LABEL  = {0: "o",    1: "D"}      # HC circle, PD diamond
 
 
-# ============================================================================
-# Configuration (env-overridable). No behavior changes—defaults match original.
-# ============================================================================
 class CFG:
     PROJECT_ROOT = Path(os.environ.get(
         "GAIT_PROJECT_ROOT", Path(__file__).resolve().parents[1]
