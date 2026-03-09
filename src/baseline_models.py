@@ -9,7 +9,7 @@ Baseline models for PhysioNet - Gait in Parkinson’s Disease.
 
 Prerequisites
 -------------
-Run your TSFresh pipeline first so that these files exist in data/processed:
+Run TSFresh pipeline first so that these files exist in data/processed:
 
     features_combined_agg.parquet
     subject_overview.csv  (must contain column 'group' with 0=HC, 1=PD)
@@ -374,7 +374,7 @@ def main():
         print("[WARN] No summary statistics computed.")
 
     # --------------------------------------------------------------
-    # 5. Optional: confusion matrices using tuned models on full dataset
+    # 5. Confusion matrices using tuned models on full dataset
     # --------------------------------------------------------------
     print("\nFitting tuned models on full datasets for confusion matrices ...")
     models = define_models_with_grids()  # re-use same grids
