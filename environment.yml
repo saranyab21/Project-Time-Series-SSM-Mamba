@@ -9,12 +9,11 @@ dependencies:
   - scikit-learn
   - matplotlib
   - seaborn
+  - scipy
   - pip
   - pip:
       - tsfresh
       - tqdm
-      - torch
-      - torchvision
-      - git+https://github.com/state-spaces/mamba.git
+      - pyarrow
       - jupyterlab
 
