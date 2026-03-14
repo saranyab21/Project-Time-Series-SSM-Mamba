@@ -2,7 +2,6 @@
 
 **Course:** Project Time Series — MSc Artificial Intelligence, FAU Erlangen-Nürnberg  
 **Supervisor:** Dr.-Ing. Tomás Arias-Vergara  
-**Student:** Saranya Bhattacharjee (aj81owid)
 
 ---
 
@@ -128,3 +127,7 @@ python baseline_models.py
 - Trabassi et al., Sensors, 2022
 - Tsakanikas et al., Sensors, 2023
 - Navita et al., Scientific Reports, 2025
+
+## Author
+
+**Saranya Bhattacaharjee (aj81owid)**
