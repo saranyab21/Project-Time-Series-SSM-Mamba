@@ -5,7 +5,7 @@ Baseline models for PhysioNet - Gait in Parkinson’s Disease.
   - Using hyperparameter grids (especially for SVM-RBF)
   - Reporting mean ± std metrics across outer folds (Accuracy, Sensitivity, Specificity, AUC)
   - Saving per-fold metrics and aggregated summaries for Left / Right / Combined datasets
-  - Saving confusion matrices for tuned models trained on the full dataset
+  - Saving confusion matrices from aggregated outer-fold predictions (nested CV)
 
 Prerequisites
 -------------
@@ -23,7 +23,7 @@ Outputs
       Mean ± std metrics for each Dataset × Model.
 
   - reports/figs/cm_opt_<Dataset>_<Model>.png
-      Confusion matrices for tuned models trained on the full dataset.
+      Update after review from Prof. Tomas: Confusion matrices from aggregated outer-fold predictions.
 
 Datasets
 --------
@@ -49,7 +49,8 @@ Evaluation
       * Specificity (recall for HC, label=0)
       * ROC AUC
 
-Confusion matrices are produced by refitting the best model (via inner CV) on the full dataset.
+Confusion matrices are produced by aggregating out-of-fold predictions from the outer CV loop.
+Every subject is predicted exactly once on a held-out fold, consistent with the nested CV results table.
 """
 
 from pathlib import Path
@@ -209,7 +210,7 @@ def plot_confusion_matrix(y_true, y_pred, title, out_path):
     plt.xlabel("Predicted")
     plt.ylabel("True")
     plt.tight_layout()
-    plt.savefig(out_path, dpi=300)
+    plt.savefig(out_path, dpi=450)
     plt.close()
     print(f"Saved confusion matrix to {out_path}")
 
@@ -231,9 +232,11 @@ def main():
     outer_splits = 5
     inner_splits = 3
 
-    # Collect per-fold metrics and summary stats
+    # Collect per-fold metrics, summary stats, and out-of-fold predictions
     rows_folds = []
     summary_stats = []
+    # oof_preds[ds_name][model_name] = (y_true_all, y_pred_all)
+    oof_preds = defaultdict(dict)
 
     # --------------------------------------------------------------
     # 3. Nested CV for each dataset and model
@@ -261,6 +264,9 @@ def main():
             print(f"\n--- Model: {model_name} ---")
             # Per-model container for metrics across outer folds
             fold_metrics = []
+            # Accumulate out-of-fold predictions for aggregated confusion matrix
+            oof_true_list = []
+            oof_pred_list = []
 
             # Nested CV: outer loop for evaluation
             for fold_idx, (train_idx, test_idx) in enumerate(
@@ -308,6 +314,10 @@ def main():
 
                 fold_metrics.append((acc, sens, spec, auc))
 
+                # Accumulate out-of-fold predictions
+                oof_true_list.extend(y_test.tolist())
+                oof_pred_list.extend(y_pred.tolist())
+
                 rows_folds.append(
                     {
                         "Dataset": ds_name,
@@ -320,6 +330,12 @@ def main():
                         "BestParams": best_params,
                     }
                 )
+
+            # Store aggregated out-of-fold predictions for this dataset × model
+            oof_preds[ds_name][model_name] = (
+                np.array(oof_true_list),
+                np.array(oof_pred_list),
+            )
 
             # Summarize across outer folds for this Dataset × Model
             if not fold_metrics:
@@ -374,44 +390,18 @@ def main():
         print("[WARN] No summary statistics computed.")
 
     # --------------------------------------------------------------
-    # 5. Confusion matrices using tuned models on full dataset
+    # 5. Confusion matrices from aggregated outer-fold predictions
+    #    Every subject was predicted exactly once on a held-out fold.
     # --------------------------------------------------------------
-    print("\nFitting tuned models on full datasets for confusion matrices ...")
-    models = define_models_with_grids()  # re-use same grids
+    print("\nPlotting confusion matrices from aggregated outer-fold predictions ...")
 
     for ds_name, (X, y_vec) in datasets.items():
-        n_samples, n_features = X.shape
-        if n_samples == 0 or len(np.unique(y_vec)) < 2:
+        if ds_name not in oof_preds:
             continue
-
-        inner_cv = StratifiedKFold(
-            n_splits=inner_splits, shuffle=True, random_state=123
-        )
-
-        for model_name, (base_clf, param_grid) in models.items():
-            print(f"  {ds_name} – {model_name}: running final GridSearchCV on full data...")
-            pipe = Pipeline(
-                [
-                    ("scaler", StandardScaler()),
-                    ("pca", PCA()),
-                    ("clf", base_clf),
-                ]
-            )
-
-            grid = GridSearchCV(
-                estimator=pipe,
-                param_grid=param_grid,
-                cv=inner_cv,
-                scoring="roc_auc",
-                n_jobs=-1,
-            )
-            grid.fit(X, y_vec)
-            best_model = grid.best_estimator_
-            y_pred_full = best_model.predict(X)
-
+        for model_name, (y_true_oof, y_pred_oof) in oof_preds[ds_name].items():
             out_path = REPORT_FIGS / f"cm_opt_{ds_name}_{model_name}.png"
             title = f"{ds_name} – {model_name}"
-            plot_confusion_matrix(y_vec, y_pred_full, title, out_path)
+            plot_confusion_matrix(y_true_oof, y_pred_oof, title, out_path)
 
     print("\nDONE. Baseline artifacts written to 'reports/' and 'reports/figs/'.")
 
