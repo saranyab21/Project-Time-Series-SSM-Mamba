@@ -82,7 +82,7 @@ Best result: Combined + SVM-RBF, AUC **0.85 ± 0.04**
 
 Dependencies are managed via conda. Python 3.10 is required.
 
-Key packages: `tsfresh`, `scikit-learn`, `numpy`, `pandas`, `matplotlib`, `seaborn`
+Key packages: `tsfresh`, `scikit-learn`, `numpy`, `pandas`, `matplotlib`, `seaborn`, `scipy`, `pyarrow`
 
 ---
 
@@ -111,8 +111,8 @@ python baseline_models.py
 ## Key Findings
 
 - Bilateral fusion (Combined) consistently outperforms single-foot configurations
-- Right foot features are stronger than left, likely due to compensatory 
-  loading in PD patients
+- Right foot features are stronger than left, consistent with 
+  gait asymmetry commonly reported in PD.
 - SVM-Linear underperforms across all configurations, confirming a 
   nonlinear decision boundary in the TSFresh feature space
 - Nested CV was essential given the small sample size (n=166) to avoid 
