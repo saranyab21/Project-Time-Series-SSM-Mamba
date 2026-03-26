@@ -100,10 +100,10 @@ conda activate gait_mamba
 ## Usage
 ```bash
 # Step 1: Extract features and generate PCA plots
-python TSFresh_PCA.py
+python src/TSFresh_PCA.py
 
 # Step 2: Run baseline classifiers
-python baseline_models.py
+python src/baseline_models.py
 ```
 
 ---
